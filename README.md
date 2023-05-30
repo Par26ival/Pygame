@@ -8,3 +8,4 @@ Has piece movement logic
 No person vs computer mode
 No starting menu
 No timer
+cannot switch piece once you have chosen it

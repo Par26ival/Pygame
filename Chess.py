@@ -12,6 +12,7 @@ LIGHT_COLOR = (240, 217, 181)
 DARK_COLOR = (181, 136, 99)
 HIGHLIGHT_COLOR = (102, 255, 102)
 SELECTED_COLOR = (255, 255, 102)
+CHECK_COLOR = (255, 0, 0)
 
 # Set the window size and title
 screen = pygame.display.set_mode((board_size, board_size))
@@ -45,9 +46,12 @@ chessboard = [
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr']
 ]
 
-# Initialize the selected piece
+# Initialize the selected piece, player turn, and check state
 selected_piece = None
 selected_piece_pos = None
+current_player = 'w'  # 'w' for white, 'b' for black
+check = False
+checkmate = False
 
 # Helper function to draw the chessboard
 def draw_chessboard():
@@ -157,7 +161,55 @@ def is_valid_move(start_pos, end_pos):
         # King movement logic
         if abs(start_row - end_row) <= 1 and abs(start_col - end_col) <= 1:
             return True
+
     return False
+
+# Helper function to check if a given player's king is in check
+def is_check(player):
+    king_pos = None
+    for row in range(8):
+        for col in range(8):
+            piece = chessboard[row][col]
+            if piece == player + 'k':
+                king_pos = (row, col)
+                break
+        if king_pos:
+            break
+
+    for row in range(8):
+        for col in range(8):
+            piece = chessboard[row][col]
+            if piece and piece[0] != player:
+                if is_valid_move((row, col), king_pos):
+                    return True
+
+    return False
+
+# Helper function to check if a given player is in checkmate
+def is_checkmate(player):
+    for start_row in range(8):
+        for start_col in range(8):
+            piece = chessboard[start_row][start_col]
+            if piece and piece[0] == player:
+                for end_row in range(8):
+                    for end_col in range(8):
+                        if is_valid_move((start_row, start_col), (end_row, end_col)):
+                            # Try the move
+                            temp_piece = chessboard[end_row][end_col]
+                            chessboard[end_row][end_col] = chessboard[start_row][start_col]
+                            chessboard[start_row][start_col] = ''
+
+                            # Check if the player is still in check
+                            if not is_check(player):
+                                # Undo the move
+                                chessboard[start_row][start_col] = chessboard[end_row][end_col]
+                                chessboard[end_row][end_col] = temp_piece
+                                return False
+
+                            # Undo the move
+                            chessboard[start_row][start_col] = chessboard[end_row][end_col]
+                            chessboard[end_row][end_col] = temp_piece
+    return True
 
 # Game loop
 running = True
@@ -166,27 +218,69 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if not selected_piece:
-                # Select a piece
+            if checkmate:
+                running = False
+            elif current_player == 'w' and selected_piece is None:
+                # Select a white piece
                 row, col = get_position_from_mouse(pygame.mouse.get_pos())
                 piece = chessboard[row][col]
-                if piece:
+                if piece and piece[0] == 'w':
                     selected_piece = piece
                     selected_piece_pos = (row, col)
-            else:
+            elif current_player == 'b' and selected_piece is None:
+                # Select a black piece
+                row, col = get_position_from_mouse(pygame.mouse.get_pos())
+                piece = chessboard[row][col]
+                if piece and piece[0] == 'b':
+                    selected_piece = piece
+                    selected_piece_pos = (row, col)
+            elif selected_piece is not None:
                 # Move the selected piece
                 row, col = get_position_from_mouse(pygame.mouse.get_pos())
                 if is_valid_move(selected_piece_pos, (row, col)):
-                    chessboard[selected_piece_pos[0]][selected_piece_pos[1]] = ''
+                    # Try the move
+                    temp_piece = chessboard[row][col]
                     chessboard[row][col] = selected_piece
-                selected_piece = None
-                selected_piece_pos = None
+                    chessboard[selected_piece_pos[0]][selected_piece_pos[1]] = ''
+
+                    # Check if the move puts the player's own king in check
+                    if is_check(current_player):
+                        # Undo the move
+                        chessboard[selected_piece_pos[0]][selected_piece_pos[1]] = selected_piece
+                        chessboard[row][col] = temp_piece
+                    else:
+                        # Check if the move results in check or checkmate
+                        check = is_check(current_player)
+                        checkmate = is_checkmate('b' if current_player == 'w' else 'w')
+
+                        # Switch to the other player's turn
+                        current_player = 'w' if current_player == 'b' else 'b'
+
+                    selected_piece = None
+                    selected_piece_pos = None
 
     screen.fill((255, 255, 255))
     draw_chessboard()
 
     if selected_piece_pos:
         pygame.draw.rect(screen, SELECTED_COLOR, (selected_piece_pos[1] * square_size, selected_piece_pos[0] * square_size, square_size, square_size))
+
+    if check:
+        king_pos = None
+        for row in range(8):
+            for col in range(8):
+                piece = chessboard[row][col]
+                if piece == current_player + 'k':
+                    king_pos = (row, col)
+                    break
+            if king_pos:
+                break
+        pygame.draw.rect(screen, CHECK_COLOR, (king_pos[1] * square_size, king_pos[0] * square_size, square_size, square_size))
+
+    if checkmate:
+        font = pygame.font.Font(None, 64)
+        text = font.render("Checkmate!", True, CHECK_COLOR)
+        screen.blit(text, (board_size // 2 - text.get_width() // 2, board_size // 2 - text.get_height() // 2))
 
     pygame.display.flip()
 
