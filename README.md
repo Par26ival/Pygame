@@ -2,6 +2,7 @@
 
 Chess game description:
 
+Two player game
 Uses images
 Has piece movement logic
 Has check/checkmate logic
