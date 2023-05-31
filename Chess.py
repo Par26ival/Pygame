@@ -1,7 +1,91 @@
 import pygame
+import sys
 
 # Initialize Pygame
 pygame.init()
+
+# Set the screen dimensions
+screen_width = 800
+screen_height = 800
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Castless Chess")
+
+# Set colors
+background_color = (255, 255, 255)
+button_color = (0, 128, 0)
+button_hover_color = (0, 0, 0)
+text_color = (0, 0, 0)
+text_hover_color = (0, 128, 0)
+
+# Set font
+font = pygame.font.Font(None, 48)
+title_font = pygame.font.Font(None, 80)
+
+# Set button dimensions
+button_width = 200
+button_height = 80
+button_x = screen_width // 2 - button_width // 2
+play_button_y = screen_height // 2 - button_height // 2 - 40
+exit_button_y = screen_height // 2 - button_height // 2 + 40
+
+# Create buttons
+play_button = pygame.Rect(button_x, play_button_y, button_width, button_height)
+exit_button = pygame.Rect(button_x, exit_button_y, button_width, button_height)
+
+# Game loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            if play_button.collidepoint(mouse_pos):
+                # Start the game
+                running = False
+            elif exit_button.collidepoint(mouse_pos):
+                # Exit the game
+                running = False
+                pygame.quit()
+                sys.exit()
+
+    # Clear the screen
+    screen.fill(background_color)
+
+    # Draw title
+    title_text = title_font.render("Castless Chess", True, text_color)
+    title_text_rect = title_text.get_rect(center=(screen_width // 2, 100))
+    screen.blit(title_text, title_text_rect)
+
+    # Draw buttons
+    pygame.draw.rect(screen, button_color, play_button)
+    pygame.draw.rect(screen, button_color, exit_button)
+
+    # Draw button text
+    play_text = font.render("Play", True, text_color)
+    play_text_rect = play_text.get_rect(center=play_button.center)
+    screen.blit(play_text, play_text_rect)
+
+    exit_text = font.render("Exit", True, text_color)
+    exit_text_rect = exit_text.get_rect(center=exit_button.center)
+    screen.blit(exit_text, exit_text_rect)
+
+    # Change button color on hover
+    mouse_pos = pygame.mouse.get_pos()
+    if play_button.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, button_hover_color, play_button)
+        play_text = font.render("Play", True, text_hover_color)
+        screen.blit(play_text, play_text_rect)
+    elif exit_button.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, button_hover_color, exit_button)
+        exit_text = font.render("Exit", True, text_hover_color)
+        screen.blit(exit_text, exit_text_rect)
+
+    # Update the display
+    pygame.display.flip()
+
 
 # Set the dimensions of the chessboard
 board_size = 800
@@ -16,7 +100,7 @@ CHECK_COLOR = (255, 0, 0)
 
 # Set the window size and title
 screen = pygame.display.set_mode((board_size, board_size))
-pygame.display.set_caption("Chess Game")
+pygame.display.set_caption("Castless chess")
 
 # Load chess piece images and resize them
 piece_images = {
