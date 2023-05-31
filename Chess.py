@@ -209,6 +209,7 @@ def is_checkmate(player):
                             # Undo the move
                             chessboard[start_row][start_col] = chessboard[end_row][end_col]
                             chessboard[end_row][end_col] = temp_piece
+
     return True
 
 # Game loop
@@ -227,6 +228,9 @@ while running:
                 if piece and piece[0] == 'w':
                     selected_piece = piece
                     selected_piece_pos = (row, col)
+                else:
+                    selected_piece = None
+                    selected_piece_pos = None
             elif current_player == 'b' and selected_piece is None:
                 # Select a black piece
                 row, col = get_position_from_mouse(pygame.mouse.get_pos())
@@ -234,10 +238,17 @@ while running:
                 if piece and piece[0] == 'b':
                     selected_piece = piece
                     selected_piece_pos = (row, col)
+                else:
+                    selected_piece = None
+                    selected_piece_pos = None
             elif selected_piece is not None:
                 # Move the selected piece
                 row, col = get_position_from_mouse(pygame.mouse.get_pos())
-                if is_valid_move(selected_piece_pos, (row, col)):
+                if selected_piece_pos == (row, col):
+                    # Deselect the piece if clicked on again
+                    selected_piece = None
+                    selected_piece_pos = None
+                elif is_valid_move(selected_piece_pos, (row, col)):
                     # Try the move
                     temp_piece = chessboard[row][col]
                     chessboard[row][col] = selected_piece
