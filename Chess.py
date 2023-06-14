@@ -105,17 +105,17 @@ pygame.display.set_caption("Castless chess")
 # Load chess piece images and resize them
 piece_images = {
     'wp': pygame.transform.scale(pygame.image.load('images/white_pawn.png'), (square_size, square_size)),
-    'wr': pygame.transform.scale(pygame.image.load('images/white_rook.png'), (square_size, square_size)),
-    'wn': pygame.transform.scale(pygame.image.load('images/white_knight.png'), (square_size, square_size)),
+    'wr': pygame.transform.scale(pygame.image.load('images/Cbum_rook.png'), (square_size, square_size)),
+    'wn': pygame.transform.scale(pygame.image.load('images/arnold_schwarzenegger_knight.png'), (square_size, square_size)),
     'wb': pygame.transform.scale(pygame.image.load('images/white_bishop.png'), (square_size, square_size)),
     'wq': pygame.transform.scale(pygame.image.load('images/white_queen.png'), (square_size, square_size)),
-    'wk': pygame.transform.scale(pygame.image.load('images/white_king.png'), (square_size, square_size)),
+    'wk': pygame.transform.scale(pygame.image.load('images/AndrewTate_king.png'), (square_size, square_size)),
     'bp': pygame.transform.scale(pygame.image.load('images/black_pawn.png'), (square_size, square_size)),
     'br': pygame.transform.scale(pygame.image.load('images/black_rook.png'), (square_size, square_size)),
     'bn': pygame.transform.scale(pygame.image.load('images/black_knight.png'), (square_size, square_size)),
     'bb': pygame.transform.scale(pygame.image.load('images/black_bishop.png'), (square_size, square_size)),
     'bq': pygame.transform.scale(pygame.image.load('images/black_queen.png'), (square_size, square_size)),
-    'bk': pygame.transform.scale(pygame.image.load('images/black_king.png'), (square_size, square_size))
+    'bk': pygame.transform.scale(pygame.image.load('images/Ronnie_Coleman_black_king.png'), (square_size, square_size))
 }
 
 # Initialize the chessboard
