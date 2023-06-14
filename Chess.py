@@ -167,6 +167,9 @@ def is_valid_move(start_pos, end_pos):
     # Check if the destination is occupied by a piece of the same color
     if chessboard[end_row][end_col] != '' and chessboard[end_row][end_col][0] == piece[0]:
         return False
+    
+    global en_passant
+    en_passant = False
 
     # Implement specific movement logic for each piece type
     if piece[1] == 'p':
@@ -175,15 +178,25 @@ def is_valid_move(start_pos, end_pos):
             if start_row == 6 and start_col == end_col and start_row - end_row == 2 and chessboard[end_row + 1][end_col] == '':
                 return True
             elif start_col == end_col and start_row - end_row == 1 and chessboard[end_row][end_col] == '':
+                en_passant = False
                 return True
             elif abs(start_col - end_col) == 1 and start_row - end_row == 1 and chessboard[end_row][end_col] != '':
+                en_passant = False
+                return True
+            elif start_row == 3 and abs(start_col - end_col) == 1 and end_row == 2 and chessboard[2][end_col] == '' and chessboard[3][end_col] == 'bp':
+                en_passant = True
                 return True
         else:
             if start_row == 1 and start_col == end_col and end_row - start_row == 2 and chessboard[end_row - 1][end_col] == '':
                 return True
             elif start_col == end_col and end_row - start_row == 1 and chessboard[end_row][end_col] == '':
+                en_passant = False
                 return True
             elif abs(start_col - end_col) == 1 and end_row - start_row == 1 and chessboard[end_row][end_col] != '':
+                en_passant = False
+                return True
+            elif start_row == 4 and abs(start_col - end_col) == 1 and end_row == 5 and chessboard[5][end_col] == '' and chessboard[4][end_col] == 'wp':
+                en_passant = True
                 return True
     elif piece[1] == 'r':
         # Rook movement logic
@@ -198,12 +211,15 @@ def is_valid_move(start_pos, end_pos):
                 for row in range(start_row + step, end_row, step):
                     if chessboard[row][start_col] != '':
                         return False
+            en_passant = False
             return True
     elif piece[1] == 'n':
         # Knight movement logic
         if abs(start_row - end_row) == 2 and abs(start_col - end_col) == 1:
+            en_passant = False
             return True
         elif abs(start_row - end_row) == 1 and abs(start_col - end_col) == 2:
+            en_passant = False
             return True
     elif piece[1] == 'b':
         # Bishop movement logic
@@ -216,6 +232,7 @@ def is_valid_move(start_pos, end_pos):
                     return False
                 row += step_row
                 col += step_col
+            en_passant = False
             return True
     elif piece[1] == 'q':
         # Queen movement logic
@@ -230,6 +247,7 @@ def is_valid_move(start_pos, end_pos):
                 for row in range(start_row + step, end_row, step):
                     if chessboard[row][start_col] != '':
                         return False
+            en_passant = False
             return True
         elif abs(start_row - end_row) == abs(start_col - end_col):
             step_row = 1 if start_row < end_row else -1
@@ -240,10 +258,12 @@ def is_valid_move(start_pos, end_pos):
                     return False
                 row += step_row
                 col += step_col
+            en_passant = False
             return True
     elif piece[1] == 'k':
         # King movement logic
         if abs(start_row - end_row) <= 1 and abs(start_col - end_col) <= 1:
+            en_passant = False
             return True
 
     return False
@@ -333,11 +353,24 @@ while running:
                     selected_piece = None
                     selected_piece_pos = None
                 elif is_valid_move(selected_piece_pos, (row, col)):
-                    # Try the move
+
+                    # Try the move2
                     temp_piece = chessboard[row][col]
                     chessboard[row][col] = selected_piece
                     chessboard[selected_piece_pos[0]][selected_piece_pos[1]] = ''
 
+                    if en_passant == True and selected_piece == 'wp':
+                        # Try the move1
+                        temp_piece = chessboard[row][col]
+                        chessboard[row][col] = selected_piece
+                        chessboard[3][col] = ''
+
+                    if en_passant == True and selected_piece == 'bp':
+                        # Try the move1
+                        temp_piece = chessboard[row][col]
+                        chessboard[row][col] = selected_piece
+                        chessboard[4][col] = ''
+                    
                     # Check if the move puts the player's own king in check
                     if is_check(current_player):
                         # Undo the move
